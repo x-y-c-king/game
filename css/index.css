@@ -1,0 +1,115 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    background: #000;
+}
+
+#app {
+    /*50 * 50 8 * 9 */
+    width: 800px;
+    height: 900px;
+    /*width: 400px;*/
+    /*height: 450px;*/
+    background: white;
+    margin: auto auto;
+    /*overflow: hidden;*/
+    padding: 50px;
+    position: relative;
+}
+
+.type {
+    width: 100px;
+    height: 100px;
+    box-sizing: border-box;
+    float: left;
+}
+
+.border-top {
+    border-top: 1px solid #000;
+}
+
+.border-left {
+    border-left: 1px solid #000;
+    /*transform: scale();*/
+}
+
+.border-right {
+    border-right: 1px solid #000;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #000;
+}
+
+.piece {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: pink;
+    box-shadow: 0 0 10px black;
+    position: absolute;
+    left: 25px;
+    top: 25px;
+    /*transform: translate(-50%, -50%);*/
+
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bolder;
+    font-size: 18px;
+    z-index: 10;
+}
+
+.hidden {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 10px black;
+    position: absolute;
+
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bolder;
+    font-size: 18px;
+
+    opacity: 0;
+    z-index: 0;
+}
+
+.piece-red {
+    color: red;
+}
+.piece-blue {
+    color: blue;
+}
+
+.rotate {
+    position: absolute;
+
+}
+.rotate-top-left {
+    transform-origin: left bottom;
+    transform: rotate(-45deg);
+}
+.rotate-top-right {
+    transform-origin: right bottom;
+    transform: rotate(45deg);
+}
+.rotate-bottom-left {
+    transform-origin: left top;
+    transform: rotate(45deg);
+}
+.rotate-bottom-right {
+    transform-origin: right top;
+    transform: rotate(-45deg);
+}
+
