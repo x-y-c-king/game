@@ -55,6 +55,8 @@ body, html {
     position: absolute;
     left: 25px;
     top: 25px;
+
+    transition: all .3s ease-in-out;
     /*transform: translate(-50%, -50%);*/
 
     text-align: center;
@@ -111,5 +113,13 @@ body, html {
 .rotate-bottom-right {
     transform-origin: right top;
     transform: rotate(-45deg);
+}
+
+.caption {
+    font-size: 36px;
+    text-align: center;
+    line-height: 60px;
+    color: #fff;
+    font-weight: bolder;
 }
 

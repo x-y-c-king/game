@@ -46,6 +46,12 @@ let blueText = ['卒', '炮', '車', '馬', '象', '士', '將'];
 const RED = '红';
 const BLUE = '蓝';
 
+let toggle = RED;
+const caption = document.createElement("div");
+caption.innerText = `出棋方 ${RED}方`
+caption.className = 'caption'
+document.body.insertBefore(caption, app);
+
 let red = {
     bing: [{top: 325, left: 25}, {top: 325, left: 225}, {top: 325, left: 425}, {top: 325, left: 625}, {
         top: 325,
@@ -102,6 +108,8 @@ class Position {
 /**
  * 兵 马 车 炮 象（相） 士 将（帅）
  */
+let isOver = false;
+
 class Piece {
     constructor(x, y, text, isRed) {
         const _ = this;
@@ -127,18 +135,54 @@ class Piece {
     }
 
     handleClick(e) {
+        if (isOver) {
+            return;
+        }
         if (bus.getLength("handle") === 0) {
+            if (toggle !== this.people) {
+                return;
+            }
             e.style.transform = `scale(1.1)`
 
             console.log(`${this.text}坐标为：` + this.x, this.y)
 
             bus.$on("handle", (isFinished, {x, y}) => {
+
                 e.style.transform = `scale(1)`
                 if (isFinished) { //是否成功
-                    const element = maps[x][y];
+                    let element = maps[x][y];
                     if (this.isMobile(x, y)) {
+
+                        toggle = this.people === RED ? BLUE : RED;
+                        caption.innerText = `出棋方 ${toggle}方`
+
                         if (element) {
-                            alert("有棋子")
+                            // alert("有棋子")
+                            if (maps[x][y].people !== this.people) {
+                                // console.log('吃')
+                                console.log(maps[x][y])
+                                const flag = maps[x][y].isStop()
+                                maps[x][y].el.style.display = 'none';
+
+                                [maps[x][y], maps[this.x][this.y]] = [maps[this.x][this.y], maps[x][y]]
+                                maps[x][y] = null;
+
+                                this.x = x;
+                                this.y = y;
+                                e.style.top = position[x][y].top + 'px'
+                                e.style.left = position[x][y].left + 'px'
+                                console.log(flag)
+                                if (flag) {
+                                    setTimeout(() => {
+                                        alert('游戏结束');
+                                    }, 300)
+                                    isOver = true;
+                                    caption.innerText = `游戏结束，胜利者 ${this.people}方`
+                                }
+
+                            } else {
+                                console.log('不吃')
+                            }
                         } else {
                             [maps[x][y], maps[this.x][this.y]] = [maps[this.x][this.y], maps[x][y]]
                             // maps[this.x, this.y] = null;
@@ -150,10 +194,10 @@ class Piece {
                         }
                     } else {
                         // console.log()
-                        if (this === element) {
+                        if (this == element) {
                             console.log('自己点自己')
                         } else {
-                            alert("不可以移动到这")
+                            console.log("不可以移动到这")
                         }
                     }
                 }
@@ -163,7 +207,55 @@ class Piece {
         }
     }
 
-    getPosition(key) {
+    isMobile(x, y) {
+        return true
+    }
+
+    isStop() {
+        return false;
+    }
+}
+
+class Bing extends Piece {
+    constructor(x, y, text = '兵', isRed) {
+        super(x, y, text, isRed)
+    }
+
+    isMobile(x, y) {
+        let move = []
+        if (this.people === RED) {
+            let boundary = this.x > 4;
+            move.push({x: this.x + 1, y: this.y});
+            if (boundary) {
+                move.push({x: this.x, y: this.y + 1});
+                move.push({x: this.x, y: this.y - 1});
+            }
+        } else {
+            let boundary = this.x <= 4;
+            move.push({x: this.x - 1, y: this.y});
+            if (boundary) {
+                move.push({x: this.x, y: this.y - 1});
+                move.push({x: this.x, y: this.y + 1});
+            }
+        }
+
+        return move.some((item, index) => {
+            return item.x == x && item.y === y
+        })
+    }
+
+    isStop() {
+        return super.isStop();
+    }
+}
+
+class Pao extends Piece {
+    constructor(x, y, text = '炮', isRed) {
+        super(x, y, text, isRed)
+    }
+
+    isStop() {
+        return super.isStop();
     }
 
     /**
@@ -171,7 +263,66 @@ class Piece {
      * @param x
      * @param y
      */
-    isMobiles(x, y) {
+    isMobile(x, y) {
+        // return super.isMobile(x, y);
+        //同一条线上
+        let flag = false;
+        if (x === this.x && y === this.y) {
+            return false;
+        }
+        if (x === this.x || y === this.y) {
+            let i, j, k = 0, count = 0;
+            if (x == this.x) {
+                i = y;
+                j = this.y;
+                k = 1;
+            } else {
+                i = x;
+                j = this.x;
+            }
+            if (i > j) {
+                [i, j] = [j + 1, i]
+            } else {
+                i += 1;
+            }
+            for (; i < j; i++) {
+                if (k === 0) {
+                    if (maps[i][y] !== null) {
+                        count++;
+                        console.log('移动log:' + k + "  " + maps[i][y].text)
+                        // break;
+                    }
+                } else {
+                    if (maps[x][i] !== null) {
+                        count++;
+                        console.log('移动log:' + maps[x][i].text)
+                        // break;
+                    }
+                }
+            }
+            if ((count === 1 && maps[x][y] != null) || (i == j && count == 0)) {
+                flag = true;
+            }
+        }
+        return flag;
+    }
+}
+
+class Che extends Piece {
+    constructor(x, y, text = '车', isRed) {
+        super(x, y, text, isRed)
+    }
+
+    isStop() {
+        return super.isStop();
+    }
+
+    /**
+     * 同一条线上移动多个长度
+     * @param x
+     * @param y
+     */
+    isMobile(x, y) {
         // return super.isMobile(x, y);
         //同一条线上
         let flag = false;
@@ -212,64 +363,15 @@ class Piece {
         }
         return flag;
     }
-
-    isMobile(x, y) {
-        return true
-    }
-}
-
-class Bing extends Piece {
-    constructor(x, y, text = '兵', isRed) {
-        super(x, y, text, isRed)
-    }
-
-    isMobile(x, y) {
-        let move = []
-        if (this.people === RED) {
-            let boundary = this.x > 4;
-            move.push({x: this.x + 1, y: this.y});
-            if (boundary) {
-                move.push({x: this.x, y: this.y + 1});
-                move.push({x: this.x, y: this.y - 1});
-            }
-        } else {
-            let boundary = this.x <= 4;
-            move.push({x: this.x - 1, y: this.y});
-            if (boundary) {
-                move.push({x: this.x, y: this.y - 1});
-                move.push({x: this.x, y: this.y + 1});
-            }
-        }
-
-        return move.some((item, index) => {
-            return item.x == x && item.y === y
-        })
-    }
-}
-
-class Pao extends Piece {
-    constructor(x, y, text = '炮', isRed) {
-        super(x, y, text, isRed)
-    }
-
-    isMobile(x, y) {
-        return super.isMobiles(x, y);
-    }
-}
-
-class Che extends Piece {
-    constructor(x, y, text = '车', isRed) {
-        super(x, y, text, isRed)
-    }
-
-    isMobile(x, y) {
-        return super.isMobiles(x, y);
-    }
 }
 
 class Ma extends Piece {
     constructor(x, y, text = '马', isRed) {
         super(x, y, text, isRed)
+    }
+
+    isStop() {
+        return super.isStop();
     }
 
     isMobile(x, y) {
@@ -279,11 +381,29 @@ class Ma extends Piece {
         }
         let m = this.x, n = this.y;
         const ma = [
-            {x: m - 1, y: n - 2}, {x: m - 1, y: n + 2}, {x: m - 2, y: n - 1}, {x: m - 2, y: n + 1},
-            {x: m + 1, y: n - 2}, {x: m + 1, y: n + 2}, {x: m + 2, y: n - 1}, {x: m + 2, y: n + 1}
+            {x: m - 1, y: n - 2, limit: {x: m, y: n - 1}},
+            {x: m + 1, y: n - 2, limit: {x: m, y: n - 1}},
+            {x: m - 1, y: n + 2, limit: {x: m, y: n + 1}},
+            {x: m + 1, y: n + 2, limit: {x: m, y: n + 1}},
+
+            {x: m - 2, y: n - 1, limit: {x: m - 1, y: n}},
+            {x: m - 2, y: n + 1, limit: {x: m - 1, y: n}},
+            {x: m + 2, y: n - 1, limit: {x: m + 1, y: n}},
+            {x: m + 2, y: n + 1, limit: {x: m + 1, y: n}}
         ];
         flag = ma.some((item) => {
-            return x === item.x && y === item.y
+            // console.log(item);
+            if (x === item.x && y === item.y) {
+                const post = maps[item.limit.x][item.limit.y]
+
+                //马埤脚
+                if (post) {
+                    console.log('受制于' + post.text);
+                    return false
+                }
+                return true;
+            }
+            return false;
         })
         return flag;
     }
@@ -292,6 +412,10 @@ class Ma extends Piece {
 class Xiang extends Piece {
     constructor(x, y, text = '象', isRed) {
         super(x, y, text, isRed)
+    }
+
+    isStop() {
+        return super.isStop();
     }
 
     isMobile(x, y) {
@@ -333,11 +457,54 @@ class Shi extends Piece {
         super(x, y, text, isRed)
     }
 
+    isStop() {
+        return super.isStop();
+    }
+
+    isMobile(x, y) {
+        const m = this.x;
+        const n = this.y;
+
+        const shi = [
+            {x: m + 1, y: n - 1},
+            {x: m + 1, y: n + 1},
+            {x: m - 1, y: n - 1},
+            {x: m - 1, y: n + 1},
+        ]
+        return shi.some((item) => {
+            if (x === item.x && y == item.y) {
+                if ([0, 1, 2, 7, 8, 9].includes(x) && [3, 4, 5].includes(y)) {
+                    return true;
+                }
+            }
+        })
+    }
+
 }
 
 class Jiang extends Piece {
     constructor(x, y, text = '将', isRed) {
         super(x, y, text, isRed)
+    }
+
+    isMobile(x, y) {
+        const m = this.x;
+        const n = this.y;
+        const stop = [
+            {x: m, y: n - 1},
+            {x: m, y: n + 1},
+            {x: m - 1, y: n},
+            {x: m + 1, y: n}
+        ]
+        return stop.some(item => {
+            if (x === item.x && y === item.y) {
+                return ([0, 1, 2, 7, 8, 9].includes(x) && [3, 4, 5].includes(y))
+            }
+        })
+    }
+
+    isStop() {
+        return true;
     }
 
 }
