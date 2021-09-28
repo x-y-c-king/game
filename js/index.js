@@ -9,7 +9,7 @@ class eventBus {
         this.handlers = {}
     }
 
-    $on(eventName, callback) {
+    $on (eventName, callback) {
         if (typeof this.handlers[eventName] === 'undefined') {
             this.handlers[eventName] = [];
         } else {
@@ -21,7 +21,7 @@ class eventBus {
         this.handlers[eventName].push(callback);
     }
 
-    $emit(eventName, args) {
+    $emit (eventName, args) {
 
         if (this.handlers[eventName]) {
             this.handlers[eventName].forEach(callback => {
@@ -31,7 +31,7 @@ class eventBus {
         }
     }
 
-    getLength(eventName) {
+    getLength (eventName) {
         return this.handlers[eventName] ? this.handlers[eventName].length : 0;
     }
 }
@@ -53,29 +53,29 @@ caption.className = 'caption'
 document.body.insertBefore(caption, app);
 
 let red = {
-    bing: [{top: 325, left: 25}, {top: 325, left: 225}, {top: 325, left: 425}, {top: 325, left: 625}, {
+    bing: [{ top: 325, left: 25 }, { top: 325, left: 225 }, { top: 325, left: 425 }, { top: 325, left: 625 }, {
         top: 325,
         left: 825
     }],
     // (325 - 25) / 100
-    pao: [{top: 225, left: 125}, {top: 225, left: 725}],
-    che: [{top: 25, left: 25}, {top: 25, left: 825}],
-    ma: [{top: 25, left: 125}, {top: 25, left: 725}],
-    xiang: [{top: 25, left: 225}, {top: 25, left: 625}],
-    shi: [{top: 25, left: 325}, {top: 25, left: 525}],
-    jiang: [{top: 25, left: 425}]
+    pao: [{ top: 225, left: 125 }, { top: 225, left: 725 }],
+    che: [{ top: 25, left: 25 }, { top: 25, left: 825 }],
+    ma: [{ top: 25, left: 125 }, { top: 25, left: 725 }],
+    xiang: [{ top: 25, left: 225 }, { top: 25, left: 625 }],
+    shi: [{ top: 25, left: 325 }, { top: 25, left: 525 }],
+    jiang: [{ top: 25, left: 425 }]
 }
 let blue = {
-    bing: [{top: 625, left: 25}, {top: 625, left: 225}, {top: 625, left: 425}, {top: 625, left: 625}, {
+    bing: [{ top: 625, left: 25 }, { top: 625, left: 225 }, { top: 625, left: 425 }, { top: 625, left: 625 }, {
         top: 625,
         left: 825
     }],
-    pao: [{top: 725, left: 125}, {top: 725, left: 725}],
-    che: [{top: 925, left: 25}, {top: 925, left: 825}],
-    ma: [{top: 925, left: 125}, {top: 925, left: 725}],
-    xiang: [{top: 925, left: 225}, {top: 925, left: 625}],
-    shi: [{top: 925, left: 325}, {top: 925, left: 525}],
-    jiang: [{top: 925, left: 425}]
+    pao: [{ top: 725, left: 125 }, { top: 725, left: 725 }],
+    che: [{ top: 925, left: 25 }, { top: 925, left: 825 }],
+    ma: [{ top: 925, left: 125 }, { top: 925, left: 725 }],
+    xiang: [{ top: 925, left: 225 }, { top: 925, left: 625 }],
+    shi: [{ top: 925, left: 325 }, { top: 925, left: 525 }],
+    jiang: [{ top: 925, left: 425 }]
 }
 
 const bus = new eventBus();
@@ -99,9 +99,9 @@ class Position {
         el.onclick = this.handleClick.bind(_, el)
     }
 
-    handleClick(e) {
+    handleClick (e) {
         console.log('移动到：', this.x, this.y)
-        bus.$emit("handle", {x: this.x, y: this.y});
+        bus.$emit("handle", { x: this.x, y: this.y });
     }
 }
 
@@ -134,7 +134,7 @@ class Piece {
         app.appendChild(this.el);
     }
 
-    handleClick(e) {
+    handleClick (e) {
         if (isOver) {
             return;
         }
@@ -146,26 +146,25 @@ class Piece {
 
             console.log(`${this.text}坐标为：` + this.x, this.y)
 
-            bus.$on("handle", (isFinished, {x, y}) => {
+            bus.$on("handle", (isFinished, { x, y }) => {
 
                 e.style.transform = `scale(1)`
                 if (isFinished) { //是否成功
                     let element = maps[x][y];
                     if (this.isMobile(x, y)) {
 
-                        toggle = this.people === RED ? BLUE : RED;
-                        caption.innerText = `出棋方 ${toggle}方`
-
                         if (element) {
                             // alert("有棋子")
                             if (maps[x][y].people !== this.people) {
-                                // console.log('吃')
+                                toggle = this.people === RED ? BLUE : RED;
+                                console.log('吃')
                                 console.log(maps[x][y])
                                 const flag = maps[x][y].isStop()
                                 maps[x][y].el.style.display = 'none';
 
-                                [maps[x][y], maps[this.x][this.y]] = [maps[this.x][this.y], maps[x][y]]
-                                maps[x][y] = null;
+                                // [maps[x][y], maps[this.x][this.y]] = [maps[this.x][this.y], maps[x][y]]
+                                maps[x][y] = maps[this.x][this.y];
+                                maps[this.x][this.y] = null
 
                                 this.x = x;
                                 this.y = y;
@@ -181,9 +180,14 @@ class Piece {
                                 }
 
                             } else {
+                                toggle = this.people === RED ? RED : BLUE;
+
                                 console.log('不吃')
                             }
+                            caption.innerText = `出棋方 ${toggle}方`
                         } else {
+                            toggle = this.people === RED ? BLUE : RED;
+                            caption.innerText = `出棋方 ${toggle}方`;
                             [maps[x][y], maps[this.x][this.y]] = [maps[this.x][this.y], maps[x][y]]
                             // maps[this.x, this.y] = null;
                             // maps[x, y] = this;
@@ -203,15 +207,15 @@ class Piece {
                 }
             })
         } else {
-            bus.$emit('handle', {x: this.x, y: this.y})
+            bus.$emit('handle', { x: this.x, y: this.y })
         }
     }
 
-    isMobile(x, y) {
+    isMobile (x, y) {
         return true
     }
 
-    isStop() {
+    isStop () {
         return false;
     }
 }
@@ -221,21 +225,21 @@ class Bing extends Piece {
         super(x, y, text, isRed)
     }
 
-    isMobile(x, y) {
+    isMobile (x, y) {
         let move = []
         if (this.people === RED) {
             let boundary = this.x > 4;
-            move.push({x: this.x + 1, y: this.y});
+            move.push({ x: this.x + 1, y: this.y });
             if (boundary) {
-                move.push({x: this.x, y: this.y + 1});
-                move.push({x: this.x, y: this.y - 1});
+                move.push({ x: this.x, y: this.y + 1 });
+                move.push({ x: this.x, y: this.y - 1 });
             }
         } else {
             let boundary = this.x <= 4;
-            move.push({x: this.x - 1, y: this.y});
+            move.push({ x: this.x - 1, y: this.y });
             if (boundary) {
-                move.push({x: this.x, y: this.y - 1});
-                move.push({x: this.x, y: this.y + 1});
+                move.push({ x: this.x, y: this.y - 1 });
+                move.push({ x: this.x, y: this.y + 1 });
             }
         }
 
@@ -244,7 +248,7 @@ class Bing extends Piece {
         })
     }
 
-    isStop() {
+    isStop () {
         return super.isStop();
     }
 }
@@ -254,7 +258,7 @@ class Pao extends Piece {
         super(x, y, text, isRed)
     }
 
-    isStop() {
+    isStop () {
         return super.isStop();
     }
 
@@ -263,7 +267,7 @@ class Pao extends Piece {
      * @param x
      * @param y
      */
-    isMobile(x, y) {
+    isMobile (x, y) {
         // return super.isMobile(x, y);
         //同一条线上
         let flag = false;
@@ -313,7 +317,7 @@ class Che extends Piece {
         super(x, y, text, isRed)
     }
 
-    isStop() {
+    isStop () {
         return super.isStop();
     }
 
@@ -322,7 +326,7 @@ class Che extends Piece {
      * @param x
      * @param y
      */
-    isMobile(x, y) {
+    isMobile (x, y) {
         // return super.isMobile(x, y);
         //同一条线上
         let flag = false;
@@ -370,26 +374,26 @@ class Ma extends Piece {
         super(x, y, text, isRed)
     }
 
-    isStop() {
+    isStop () {
         return super.isStop();
     }
 
-    isMobile(x, y) {
+    isMobile (x, y) {
         let flag = false;
         if (x === this.x && y === this.y) {
             return false;
         }
         let m = this.x, n = this.y;
         const ma = [
-            {x: m - 1, y: n - 2, limit: {x: m, y: n - 1}},
-            {x: m + 1, y: n - 2, limit: {x: m, y: n - 1}},
-            {x: m - 1, y: n + 2, limit: {x: m, y: n + 1}},
-            {x: m + 1, y: n + 2, limit: {x: m, y: n + 1}},
+            { x: m - 1, y: n - 2, limit: { x: m, y: n - 1 } },
+            { x: m + 1, y: n - 2, limit: { x: m, y: n - 1 } },
+            { x: m - 1, y: n + 2, limit: { x: m, y: n + 1 } },
+            { x: m + 1, y: n + 2, limit: { x: m, y: n + 1 } },
 
-            {x: m - 2, y: n - 1, limit: {x: m - 1, y: n}},
-            {x: m - 2, y: n + 1, limit: {x: m - 1, y: n}},
-            {x: m + 2, y: n - 1, limit: {x: m + 1, y: n}},
-            {x: m + 2, y: n + 1, limit: {x: m + 1, y: n}}
+            { x: m - 2, y: n - 1, limit: { x: m - 1, y: n } },
+            { x: m - 2, y: n + 1, limit: { x: m - 1, y: n } },
+            { x: m + 2, y: n - 1, limit: { x: m + 1, y: n } },
+            { x: m + 2, y: n + 1, limit: { x: m + 1, y: n } }
         ];
         flag = ma.some((item) => {
             // console.log(item);
@@ -414,18 +418,18 @@ class Xiang extends Piece {
         super(x, y, text, isRed)
     }
 
-    isStop() {
+    isStop () {
         return super.isStop();
     }
 
-    isMobile(x, y) {
+    isMobile (x, y) {
         let flag = false;
         if (x === this.x && y === this.y) {
             return false;
         }
         const xiang = [
-            [{x: 2, y: 0}, {x: 2, y: 8}, {x: 4, y: 2}, {x: 4, y: 6}, {x: 0, y: 2}, {x: 0, y: 6}, {x: 2, y: 4}],
-            [{x: 7, y: 0}, {x: 7, y: 8}, {x: 5, y: 2}, {x: 5, y: 6}, {x: 9, y: 2}, {x: 9, y: 6}, {x: 7, y: 4}]
+            [{ x: 2, y: 0 }, { x: 2, y: 8 }, { x: 4, y: 2 }, { x: 4, y: 6 }, { x: 0, y: 2 }, { x: 0, y: 6 }, { x: 2, y: 4 }],
+            [{ x: 7, y: 0 }, { x: 7, y: 8 }, { x: 5, y: 2 }, { x: 5, y: 6 }, { x: 9, y: 2 }, { x: 9, y: 6 }, { x: 7, y: 4 }]
         ]
 
         let attr = xiang[0]
@@ -457,19 +461,19 @@ class Shi extends Piece {
         super(x, y, text, isRed)
     }
 
-    isStop() {
+    isStop () {
         return super.isStop();
     }
 
-    isMobile(x, y) {
+    isMobile (x, y) {
         const m = this.x;
         const n = this.y;
 
         const shi = [
-            {x: m + 1, y: n - 1},
-            {x: m + 1, y: n + 1},
-            {x: m - 1, y: n - 1},
-            {x: m - 1, y: n + 1},
+            { x: m + 1, y: n - 1 },
+            { x: m + 1, y: n + 1 },
+            { x: m - 1, y: n - 1 },
+            { x: m - 1, y: n + 1 },
         ]
         return shi.some((item) => {
             if (x === item.x && y == item.y) {
@@ -487,14 +491,14 @@ class Jiang extends Piece {
         super(x, y, text, isRed)
     }
 
-    isMobile(x, y) {
+    isMobile (x, y) {
         const m = this.x;
         const n = this.y;
         const stop = [
-            {x: m, y: n - 1},
-            {x: m, y: n + 1},
-            {x: m - 1, y: n},
-            {x: m + 1, y: n}
+            { x: m, y: n - 1 },
+            { x: m, y: n + 1 },
+            { x: m - 1, y: n },
+            { x: m + 1, y: n }
         ]
         return stop.some(item => {
             if (x === item.x && y === item.y) {
@@ -503,7 +507,7 @@ class Jiang extends Piece {
         })
     }
 
-    isStop() {
+    isStop () {
         return true;
     }
 
@@ -516,13 +520,13 @@ let element = [Bing, Pao, Che, Ma, Xiang, Shi, Jiang]
  * @param index
  * @returns {{top: number, left: number}}
  */
-function getPosition(i, j) {
+function getPosition (i, j) {
     let top = 25 + i * 100;
     let left = 25 + j * 100;
-    return {top, left}
+    return { top, left }
 }
 
-function initMap() {
+function initMap () {
 
     const line = Array(72).fill(0)
     // 初始化棋盘线
@@ -578,8 +582,8 @@ function initMap() {
     for (let i = 0; i < 10; i++) {
         let post = [];
         for (let j = 0; j < 9; j++) {
-            const {top, left} = getPosition(i, j);
-            post.push({top, left})
+            const { top, left } = getPosition(i, j);
+            post.push({ top, left })
 
         }
         position.push(post);
