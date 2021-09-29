@@ -21,6 +21,10 @@ class Enitiy {
     }
 }
 
+const close = 'CLOSE';
+const quit = 'QUIT'
+const over = 'OVER'
+
 ws.on('connection', (client) => {
     client.on("open", function () {
 
@@ -49,9 +53,9 @@ ws.on('connection', (client) => {
             client.send((new Enitiy(status, str, "")).toString());
         } else {
             clients[roomId].forEach((item) => {
-                if(client != item) {
+                if (client != item) {
                     item.send((new Enitiy(200, result, "")).toString())
-                }  
+                }
             })
         }
     })
@@ -62,7 +66,7 @@ ws.on('connection', (client) => {
                     clients[i].splice(index, 1);
                     if (index < 2) {
                         const people = index == 0 ? '红' : '蓝';
-                        sendMessage(201, { operating: 'closer' }, people + "方退出");
+                        sendMessage(201, close, quit + "方退出");
                         return false
                     }
                 }

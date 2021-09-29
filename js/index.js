@@ -1,5 +1,5 @@
 // 实列
-const app = document.getElementById('app');
+const app = document.getElementById('app')
 
 /**
  * 观察者模式 奖励棋子的点击
@@ -11,188 +11,240 @@ class eventBus {
 
     $on (eventName, callback) {
         if (typeof this.handlers[eventName] === 'undefined') {
-            this.handlers[eventName] = [];
+            this.handlers[eventName] = []
         } else {
             if (this.handlers[eventName].length !== 0) {
-                const callback = this.handlers[eventName].pop();
+                const callback = this.handlers[eventName].pop()
                 callback(false, 1)
             }
         }
-        this.handlers[eventName].push(callback);
+        this.handlers[eventName].push(callback)
     }
 
     $emit (eventName, args) {
-
         if (this.handlers[eventName]) {
-            this.handlers[eventName].forEach(callback => {
+            this.handlers[eventName].forEach((callback) => {
                 callback(true, args)
-                this.handlers[eventName].pop();
+                this.handlers[eventName].pop()
             })
         }
     }
 
     getLength (eventName) {
-        return this.handlers[eventName] ? this.handlers[eventName].length : 0;
+        return this.handlers[eventName] ? this.handlers[eventName].length : 0
     }
 }
 
-let maps = []; //棋盘
-let position = [];  //地址map 存放对应坐标的位置;
-let readonlyMap = [];
+let maps = [] //棋盘
+let position = [] //地址map 存放对应坐标的位置;
+let readonlyMap = []
 
-let redText = ['兵', '炮', '車', '馬', '相', '士', '帥'];
-let blueText = ['卒', '炮', '車', '馬', '象', '士', '將'];
+let redText = ['兵', '炮', '車', '馬', '相', '士', '帥']
+let blueText = ['卒', '炮', '車', '馬', '象', '士', '將']
 
-const RED = '红';
-const BLUE = '蓝';
+const RED = '红'
+const BLUE = '蓝'
+const WATCH = '观战'
 
 let toggle = RED;
-const caption = document.createElement("div");
+let self = RED;
+
+const caption = document.createElement('div')
 caption.innerText = `出棋方 ${RED}方`
 caption.className = 'caption'
-document.body.insertBefore(caption, app);
+document.body.insertBefore(caption, app)
+
+const detail = document.createElement('div')
+detail.innerText = `你是${self}方`
+detail.className = 'caption'
+document.body.insertBefore(detail, app)
 
 let red = {
-    bing: [{ top: 325, left: 25 }, { top: 325, left: 225 }, { top: 325, left: 425 }, { top: 325, left: 625 }, {
-        top: 325,
-        left: 825
-    }],
+    bing: [
+        { top: 325, left: 25 },
+        { top: 325, left: 225 },
+        { top: 325, left: 425 },
+        { top: 325, left: 625 },
+        {
+            top: 325,
+            left: 825
+        }
+    ],
     // (325 - 25) / 100
-    pao: [{ top: 225, left: 125 }, { top: 225, left: 725 }],
-    che: [{ top: 25, left: 25 }, { top: 25, left: 825 }],
-    ma: [{ top: 25, left: 125 }, { top: 25, left: 725 }],
-    xiang: [{ top: 25, left: 225 }, { top: 25, left: 625 }],
-    shi: [{ top: 25, left: 325 }, { top: 25, left: 525 }],
+    pao: [
+        { top: 225, left: 125 },
+        { top: 225, left: 725 }
+    ],
+    che: [
+        { top: 25, left: 25 },
+        { top: 25, left: 825 }
+    ],
+    ma: [
+        { top: 25, left: 125 },
+        { top: 25, left: 725 }
+    ],
+    xiang: [
+        { top: 25, left: 225 },
+        { top: 25, left: 625 }
+    ],
+    shi: [
+        { top: 25, left: 325 },
+        { top: 25, left: 525 }
+    ],
     jiang: [{ top: 25, left: 425 }]
 }
 let blue = {
-    bing: [{ top: 625, left: 25 }, { top: 625, left: 225 }, { top: 625, left: 425 }, { top: 625, left: 625 }, {
-        top: 625,
-        left: 825
-    }],
-    pao: [{ top: 725, left: 125 }, { top: 725, left: 725 }],
-    che: [{ top: 925, left: 25 }, { top: 925, left: 825 }],
-    ma: [{ top: 925, left: 125 }, { top: 925, left: 725 }],
-    xiang: [{ top: 925, left: 225 }, { top: 925, left: 625 }],
-    shi: [{ top: 925, left: 325 }, { top: 925, left: 525 }],
+    bing: [
+        { top: 625, left: 25 },
+        { top: 625, left: 225 },
+        { top: 625, left: 425 },
+        { top: 625, left: 625 },
+        {
+            top: 625,
+            left: 825
+        }
+    ],
+    pao: [
+        { top: 725, left: 125 },
+        { top: 725, left: 725 }
+    ],
+    che: [
+        { top: 925, left: 25 },
+        { top: 925, left: 825 }
+    ],
+    ma: [
+        { top: 925, left: 125 },
+        { top: 925, left: 725 }
+    ],
+    xiang: [
+        { top: 925, left: 225 },
+        { top: 925, left: 625 }
+    ],
+    shi: [
+        { top: 925, left: 325 },
+        { top: 925, left: 525 }
+    ],
     jiang: [{ top: 925, left: 425 }]
 }
 
-const bus = new eventBus();
+const bus = new eventBus()
 
 /**
  * 空位置
  */
 class Position {
     constructor(x, y) {
-        const _ = this;
-        this.x = x;
-        this.y = y;
+        const _ = this
+        this.x = x
+        this.y = y
 
-        let el = document.createElement("div");
-        el.style.top = position[x][y].top + 'px';
-        el.style.left = position[x][y].left + 'px';
-        el.className = 'hidden';
+        let el = document.createElement('div')
+        el.style.top = position[x][y].top + 'px'
+        el.style.left = position[x][y].left + 'px'
+        el.className = 'hidden'
 
-        app.appendChild(el);
+        app.appendChild(el)
 
         el.onclick = this.handleClick.bind(_, el)
     }
 
     handleClick (e) {
         console.log('移动到：', this.x, this.y)
-        bus.$emit("handle", { x: this.x, y: this.y });
+        bus.$emit('handle', { x: this.x, y: this.y })
     }
 }
 
 /**
  * 兵 马 车 炮 象（相） 士 将（帅）
  */
-let isOver = false;
+let isOver = false
 
 class Piece {
     constructor(x, y, text, isRed) {
-        const _ = this;
+        const _ = this
 
-        this.text = text;
-        this.x = x;
-        this.y = y;
+        this.text = text
+        this.x = x
+        this.y = y
 
-        const color = isRed ? "piece-red" : "piece-blue";
+        const color = isRed ? 'piece-red' : 'piece-blue'
 
-        this.people = isRed ? RED : BLUE;
+        this.people = isRed ? RED : BLUE
 
-        this.el = document.createElement("div")
+        this.el = document.createElement('div')
 
-        this.el.className = `piece ${color}`;
-        this.el.style.top = position[x][y].top + 'px';
-        this.el.style.left = position[x][y].left + 'px';
-        this.el.innerText = text;
+        this.el.className = `piece ${color}`
+        this.el.style.top = position[x][y].top + 'px'
+        this.el.style.left = position[x][y].left + 'px'
+        this.el.innerText = text
 
-        this.el.onclick = this.handleClick.bind(_, this.el);
+        this.el.onclick = this.handleClick.bind(_, this.el)
 
-        app.appendChild(this.el);
+        app.appendChild(this.el)
     }
 
     handleClick (e) {
-        if (isOver) {
-            return;
+        if (isOver || self !== toggle) {
+            return
         }
-        if (bus.getLength("handle") === 0) {
+        if (bus.getLength('handle') === 0) {
             if (toggle !== this.people) {
-                return;
+                return
             }
             e.style.transform = `scale(1.1)`
 
             console.log(`${this.text}坐标为：` + this.x, this.y)
 
-            bus.$on("handle", (isFinished, { x, y }) => {
-
+            bus.$on('handle', (isFinished, { x, y }) => {
+                const begin = { x: this.x, y: this.y }
+                const end = { x, y }
                 e.style.transform = `scale(1)`
-                if (isFinished) { //是否成功
-                    let element = maps[x][y];
+                if (isFinished) {
+                    //是否成功
+                    let element = maps[x][y]
                     if (this.isMobile(x, y)) {
-
                         if (element) {
                             // alert("有棋子")
                             if (maps[x][y].people !== this.people) {
-                                toggle = this.people === RED ? BLUE : RED;
+                                toggle = this.people === RED ? BLUE : RED
                                 console.log('吃')
                                 console.log(maps[x][y])
                                 const flag = maps[x][y].isStop()
-                                maps[x][y].el.style.display = 'none';
+                                maps[x][y].el.style.display = 'none'
 
                                 // [maps[x][y], maps[this.x][this.y]] = [maps[this.x][this.y], maps[x][y]]
-                                maps[x][y] = maps[this.x][this.y];
+                                maps[x][y] = maps[this.x][this.y]
                                 maps[this.x][this.y] = null
 
-                                this.x = x;
-                                this.y = y;
+                                this.x = x
+                                this.y = y
                                 e.style.top = position[x][y].top + 'px'
                                 e.style.left = position[x][y].left + 'px'
                                 console.log(flag)
                                 if (flag) {
                                     setTimeout(() => {
-                                        alert('游戏结束');
+                                        alert('游戏结束')
                                     }, 300)
-                                    isOver = true;
+                                    isOver = true
                                     caption.innerText = `游戏结束，胜利者 ${this.people}方`
                                 }
-
+                                send({ begin, end })
                             } else {
-                                toggle = this.people === RED ? RED : BLUE;
+                                toggle = this.people === RED ? RED : BLUE
 
                                 console.log('不吃')
                             }
                             caption.innerText = `出棋方 ${toggle}方`
                         } else {
-                            toggle = this.people === RED ? BLUE : RED;
+                            send({ begin, end })
+                            toggle = this.people === RED ? BLUE : RED
                             caption.innerText = `出棋方 ${toggle}方`;
+
                             [maps[x][y], maps[this.x][this.y]] = [maps[this.x][this.y], maps[x][y]]
                             // maps[this.x, this.y] = null;
                             // maps[x, y] = this;
-                            this.x = x;
-                            this.y = y;
+                            this.x = x
+                            this.y = y
                             e.style.top = position[x][y].top + 'px'
                             e.style.left = position[x][y].left + 'px'
                         }
@@ -201,7 +253,7 @@ class Piece {
                         if (this == element) {
                             console.log('自己点自己')
                         } else {
-                            console.log("不可以移动到这")
+                            console.log('不可以移动到这')
                         }
                     }
                 }
@@ -216,7 +268,7 @@ class Piece {
     }
 
     isStop () {
-        return false;
+        return false
     }
 }
 
@@ -228,18 +280,18 @@ class Bing extends Piece {
     isMobile (x, y) {
         let move = []
         if (this.people === RED) {
-            let boundary = this.x > 4;
-            move.push({ x: this.x + 1, y: this.y });
+            let boundary = this.x > 4
+            move.push({ x: this.x + 1, y: this.y })
             if (boundary) {
-                move.push({ x: this.x, y: this.y + 1 });
-                move.push({ x: this.x, y: this.y - 1 });
+                move.push({ x: this.x, y: this.y + 1 })
+                move.push({ x: this.x, y: this.y - 1 })
             }
         } else {
-            let boundary = this.x <= 4;
-            move.push({ x: this.x - 1, y: this.y });
+            let boundary = this.x <= 4
+            move.push({ x: this.x - 1, y: this.y })
             if (boundary) {
-                move.push({ x: this.x, y: this.y - 1 });
-                move.push({ x: this.x, y: this.y + 1 });
+                move.push({ x: this.x, y: this.y - 1 })
+                move.push({ x: this.x, y: this.y + 1 })
             }
         }
 
@@ -249,7 +301,7 @@ class Bing extends Piece {
     }
 
     isStop () {
-        return super.isStop();
+        return super.isStop()
     }
 }
 
@@ -259,7 +311,7 @@ class Pao extends Piece {
     }
 
     isStop () {
-        return super.isStop();
+        return super.isStop()
     }
 
     /**
@@ -270,45 +322,50 @@ class Pao extends Piece {
     isMobile (x, y) {
         // return super.isMobile(x, y);
         //同一条线上
-        let flag = false;
+        let flag = false
         if (x === this.x && y === this.y) {
-            return false;
+            return false
         }
         if (x === this.x || y === this.y) {
-            let i, j, k = 0, count = 0;
+            let i,
+                j,
+                k = 0,
+                count = 0
             if (x == this.x) {
-                i = y;
-                j = this.y;
-                k = 1;
+                i = y
+                j = this.y
+                k = 1
             } else {
-                i = x;
-                j = this.x;
+                i = x
+                j = this.x
             }
             if (i > j) {
-                [i, j] = [j + 1, i]
+                ;[i, j] = [j + 1, i]
             } else {
-                i += 1;
+                i += 1
             }
             for (; i < j; i++) {
                 if (k === 0) {
                     if (maps[i][y] !== null) {
-                        count++;
-                        console.log('移动log:' + k + "  " + maps[i][y].text)
+                        count++
+                        console.log('移动log:' + k + '  ' + maps[i][y].text)
                         // break;
                     }
                 } else {
                     if (maps[x][i] !== null) {
-                        count++;
+                        count++
                         console.log('移动log:' + maps[x][i].text)
                         // break;
                     }
                 }
             }
-            if ((count === 1 && maps[x][y] != null) || (i == j && count == 0)) {
-                flag = true;
+
+            // 翻上吃棋 和走直线不能吃棋
+            if ((count === 1 && maps[x][y] != null) || (i == j && count == 0 && maps[x][y] == null)) {
+                flag = true
             }
         }
-        return flag;
+        return flag
     }
 }
 
@@ -318,7 +375,7 @@ class Che extends Piece {
     }
 
     isStop () {
-        return super.isStop();
+        return super.isStop()
     }
 
     /**
@@ -329,43 +386,45 @@ class Che extends Piece {
     isMobile (x, y) {
         // return super.isMobile(x, y);
         //同一条线上
-        let flag = false;
+        let flag = false
         if (x === this.x && y === this.y) {
-            return false;
+            return false
         }
         if (x === this.x || y === this.y) {
-            let i, j, k = 0;
+            let i,
+                j,
+                k = 0
             if (x === this.x) {
-                i = y;
-                j = this.y;
-                k = 1;
+                i = y
+                j = this.y
+                k = 1
             } else {
-                i = x;
-                j = this.x;
+                i = x
+                j = this.x
             }
             if (i > j) {
-                [i, j] = [j + 1, i]
+                ;[i, j] = [j + 1, i]
             } else {
-                i += 1;
+                i += 1
             }
             for (; i < j; i++) {
                 if (k === 0) {
                     if (maps[i][y] !== null) {
-                        console.log('移动log:' + k + "  " + maps[i][y].text)
-                        break;
+                        console.log('移动log:' + k + '  ' + maps[i][y].text)
+                        break
                     }
                 } else {
                     if (maps[x][i] !== null) {
                         console.log('移动log:' + maps[x][i].text)
-                        break;
+                        break
                     }
                 }
             }
             if (i === j) {
-                flag = true;
+                flag = true
             }
         }
-        return flag;
+        return flag
     }
 }
 
@@ -375,15 +434,16 @@ class Ma extends Piece {
     }
 
     isStop () {
-        return super.isStop();
+        return super.isStop()
     }
 
     isMobile (x, y) {
-        let flag = false;
+        let flag = false
         if (x === this.x && y === this.y) {
-            return false;
+            return false
         }
-        let m = this.x, n = this.y;
+        let m = this.x,
+            n = this.y
         const ma = [
             { x: m - 1, y: n - 2, limit: { x: m, y: n - 1 } },
             { x: m + 1, y: n - 2, limit: { x: m, y: n - 1 } },
@@ -394,7 +454,7 @@ class Ma extends Piece {
             { x: m - 2, y: n + 1, limit: { x: m - 1, y: n } },
             { x: m + 2, y: n - 1, limit: { x: m + 1, y: n } },
             { x: m + 2, y: n + 1, limit: { x: m + 1, y: n } }
-        ];
+        ]
         flag = ma.some((item) => {
             // console.log(item);
             if (x === item.x && y === item.y) {
@@ -402,14 +462,14 @@ class Ma extends Piece {
 
                 //马埤脚
                 if (post) {
-                    console.log('受制于' + post.text);
+                    console.log('受制于' + post.text)
                     return false
                 }
-                return true;
+                return true
             }
-            return false;
+            return false
         })
-        return flag;
+        return flag
     }
 }
 
@@ -419,17 +479,33 @@ class Xiang extends Piece {
     }
 
     isStop () {
-        return super.isStop();
+        return super.isStop()
     }
 
     isMobile (x, y) {
-        let flag = false;
+        let flag = false
         if (x === this.x && y === this.y) {
-            return false;
+            return false
         }
         const xiang = [
-            [{ x: 2, y: 0 }, { x: 2, y: 8 }, { x: 4, y: 2 }, { x: 4, y: 6 }, { x: 0, y: 2 }, { x: 0, y: 6 }, { x: 2, y: 4 }],
-            [{ x: 7, y: 0 }, { x: 7, y: 8 }, { x: 5, y: 2 }, { x: 5, y: 6 }, { x: 9, y: 2 }, { x: 9, y: 6 }, { x: 7, y: 4 }]
+            [
+                { x: 2, y: 0 },
+                { x: 2, y: 8 },
+                { x: 4, y: 2 },
+                { x: 4, y: 6 },
+                { x: 0, y: 2 },
+                { x: 0, y: 6 },
+                { x: 2, y: 4 }
+            ],
+            [
+                { x: 7, y: 0 },
+                { x: 7, y: 8 },
+                { x: 5, y: 2 },
+                { x: 5, y: 6 },
+                { x: 9, y: 2 },
+                { x: 9, y: 6 },
+                { x: 7, y: 4 }
+            ]
         ]
 
         let attr = xiang[0]
@@ -438,21 +514,21 @@ class Xiang extends Piece {
         }
         flag = attr.some((item) => {
             if (x == item.x && y == item.y) {
-                let m = Math.abs(this.x - x);
-                let n = Math.abs(this.y - y);
-                let i = Math.abs(this.x + x) / 2;
-                let j = Math.abs(this.y + y) / 2;
+                let m = Math.abs(this.x - x)
+                let n = Math.abs(this.y - y)
+                let i = Math.abs(this.x + x) / 2
+                let j = Math.abs(this.y + y) / 2
                 if (m === n && maps[i][j] === null) {
-                    return true;
+                    return true
                 } else {
                     if (maps[i][j]) {
-                        console.log("阻止" + this.text + "跳转的是：" + maps[i][j].text)
+                        console.log('阻止' + this.text + '跳转的是：' + maps[i][j].text)
                     }
                 }
             }
-            return false;
+            return false
         })
-        return flag;
+        return flag
     }
 }
 
@@ -462,28 +538,27 @@ class Shi extends Piece {
     }
 
     isStop () {
-        return super.isStop();
+        return super.isStop()
     }
 
     isMobile (x, y) {
-        const m = this.x;
-        const n = this.y;
+        const m = this.x
+        const n = this.y
 
         const shi = [
             { x: m + 1, y: n - 1 },
             { x: m + 1, y: n + 1 },
             { x: m - 1, y: n - 1 },
-            { x: m - 1, y: n + 1 },
+            { x: m - 1, y: n + 1 }
         ]
         return shi.some((item) => {
             if (x === item.x && y == item.y) {
                 if ([0, 1, 2, 7, 8, 9].includes(x) && [3, 4, 5].includes(y)) {
-                    return true;
+                    return true
                 }
             }
         })
     }
-
 }
 
 class Jiang extends Piece {
@@ -492,25 +567,24 @@ class Jiang extends Piece {
     }
 
     isMobile (x, y) {
-        const m = this.x;
-        const n = this.y;
+        const m = this.x
+        const n = this.y
         const stop = [
             { x: m, y: n - 1 },
             { x: m, y: n + 1 },
             { x: m - 1, y: n },
             { x: m + 1, y: n }
         ]
-        return stop.some(item => {
+        return stop.some((item) => {
             if (x === item.x && y === item.y) {
-                return ([0, 1, 2, 7, 8, 9].includes(x) && [3, 4, 5].includes(y))
+                return [0, 1, 2, 7, 8, 9].includes(x) && [3, 4, 5].includes(y)
             }
         })
     }
 
     isStop () {
-        return true;
+        return true
     }
-
 }
 
 let element = [Bing, Pao, Che, Ma, Xiang, Shi, Jiang]
@@ -521,45 +595,44 @@ let element = [Bing, Pao, Che, Ma, Xiang, Shi, Jiang]
  * @returns {{top: number, left: number}}
  */
 function getPosition (i, j) {
-    let top = 25 + i * 100;
-    let left = 25 + j * 100;
+    let top = 25 + i * 100
+    let left = 25 + j * 100
     return { top, left }
 }
 
 function initMap () {
-
     const line = Array(72).fill(0)
     // 初始化棋盘线
     line.forEach((item, index) => {
-        const el = document.createElement("div");
-        let className = ["type"]
+        const el = document.createElement('div')
+        let className = ['type']
 
         //中间一行 不显示一部分线
         if (Math.floor(index / 8) !== 4 || index % 8 === 7) {
-            className.push("border-right");
+            className.push('border-right')
         }
-        className.push("border-bottom");
+        className.push('border-bottom')
         //第一行
         if (index < 8) {
-            className.push("border-top");
+            className.push('border-top')
         }
         // 第一列
         if (index % 8 === 0) {
-            className.push("border-left");
+            className.push('border-left')
         }
         el.className = className.join(' ')
-        app.appendChild(el);
+        app.appendChild(el)
     })
 
-    const lines = [];
+    const lines = []
     for (let i = 0; i < 4; i++) {
         lines.push(document.createElement('div'))
-        const width = Math.sqrt(200 * 200 + 200 * 200);
-        const posts = ['rotate-top-left', 'rotate-top-right', 'rotate-bottom-left', 'rotate-bottom-right'];
-        const className = ['rotate',];
-        className.push(posts[i]);
-        lines[i].style.width = width + 'px';
-        lines[i].style.height = width + 'px';
+        const width = Math.sqrt(200 * 200 + 200 * 200)
+        const posts = ['rotate-top-left', 'rotate-top-right', 'rotate-bottom-left', 'rotate-bottom-right']
+        const className = ['rotate']
+        className.push(posts[i])
+        lines[i].style.width = width + 'px'
+        lines[i].style.height = width + 'px'
 
         if (i % 2 === 0) {
             lines[i].style.left = '350px'
@@ -567,61 +640,139 @@ function initMap () {
             lines[i].style.right = '350px'
         }
         if (i < 2) {
-            className.push('border-bottom');
+            className.push('border-bottom')
             lines[i].style.bottom = '50px'
         } else {
-            className.push('border-top');
+            className.push('border-top')
             lines[i].style.top = '50px'
         }
 
-        lines[i].className = className.join(" ");
-        app.appendChild(lines[i]);
+        lines[i].className = className.join(' ')
+        app.appendChild(lines[i])
     }
 
     // 初始化按钮点击
     for (let i = 0; i < 10; i++) {
-        let post = [];
+        let post = []
         for (let j = 0; j < 9; j++) {
-            const { top, left } = getPosition(i, j);
+            const { top, left } = getPosition(i, j)
             post.push({ top, left })
-
         }
-        position.push(post);
+        position.push(post)
     }
 
     for (let i = 0; i < 10; i++) {
-        let read = [];
-        let arr = [];
+        let read = []
+        let arr = []
         for (let j = 0; j < 9; j++) {
             read.push(new Position(i, j))
             arr.push(null)
         }
-        readonlyMap.push(read);
-        maps.push(arr);
+        readonlyMap.push(read)
+        maps.push(arr)
     }
 
     // 初始化红色棋子
     Object.keys(red).forEach((item, index) => {
-
         red[item].forEach((item) => {
-            const i = (item.top - 25) / 100;
-            const j = (item.left - 25) / 100;
-            maps[i][j] = new element[index](i, j, redText[index], true);
+            const i = (item.top - 25) / 100
+            const j = (item.left - 25) / 100
+            maps[i][j] = new element[index](i, j, redText[index], true)
         })
     })
 
     // 初始化蓝色棋子
     Object.keys(blue).forEach((item, index) => {
-
         blue[item].forEach((item) => {
-            const i = (item.top - 25) / 100;
-            const j = (item.left - 25) / 100;
-            maps[i][j] = new element[index](i, j, blueText[index], false);
+            const i = (item.top - 25) / 100
+            const j = (item.left - 25) / 100
+            maps[i][j] = new element[index](i, j, blueText[index], false)
         })
     })
 }
 
-initMap();
+/**
+ * 常量
+ *
+ * 返回数据 status
+ *  200 正常数据返回
+ *  201 操作 下棋方退出 游戏结束
+ *
+ */
+const closer = 'CLOSE'
+const quit = 'QUIT'
+const over = 'OVER'
 
+function move ({ begin, end }) {
+    console.log(begin, end);
+    if (!begin || !end) return;
 
+    console.log(maps[begin.x][begin.y]);
+    const moveEnd = position[end.x][end.y];
 
+    // maps[begin.x][begin.y].el.style.display = 'none'
+    maps[begin.x][begin.y].el.style.top = (moveEnd.top + 'px');
+    maps[begin.x][begin.y].el.style.left = (moveEnd.left + 'px');
+    maps[begin.x][begin.y].x = end.x;
+    maps[begin.x][begin.y].y = end.y;
+    toggle = maps[begin.x][begin.y].people === RED ? BLUE : RED
+
+    console.log(moveEnd);
+    console.log(maps[begin.x][begin.y]);
+
+    if (maps[end.x][end.y]) {
+        maps[end.x][end.y].el.style.display = 'none'
+    }
+    maps[end.x][end.y] = maps[begin.x][begin.y];
+    maps[begin.x][begin.y] = null;
+
+    caption.innerText = `出棋方 ${toggle}方`
+}
+
+function initSocket () {
+    const params = {
+        roomId: 1
+    }
+    const ws = new WebSocket('ws://192.168.2.24:3000/')
+    ws.onopen = function () {
+        console.log('服务器连接')
+        ws.send(JSON.stringify({ type: 1, ...params }))
+    }
+    ws.onmessage = (res) => {
+        const { status, data, msg } = JSON.parse(res.data)
+        console.log(status);
+        // console.log('来自服务器发来的数据', data)
+        switch (status) {
+            case 200: //棋子移动
+                move(data);
+                break;
+            case 201:
+                if (data == quit) {
+                    alert(`${msg},请刷新页面`)
+                } else if(data == closer) {
+
+                } else if(data == over) {
+
+                }
+                break;
+            case 203: //初始化
+                const { type } = data;
+                self = ['', RED, BLUE, WATCH][type];
+                detail.innerText = `你是${self}方`
+                break;
+            default: console.log('错误返回');
+        }
+    }
+
+    ws.onclose = () => {
+        console.log('服务器关闭')
+    }
+    function send (query) {
+        //其他信息
+        ws.send(JSON.stringify({ type: 2, ...params, ...query }))
+    }
+    return send;
+}
+
+initMap()
+const send = initSocket();
