@@ -733,7 +733,8 @@ function initSocket () {
     const params = {
         roomId: 1
     }
-    const ws = new WebSocket('ws://192.168.2.24:3000/')
+    const ws = new WebSocket('ws://47.111.2.107:9090/')
+    // const ws = new WebSocket('ws://127.0.0.1:9090/')
     ws.onopen = function () {
         console.log('服务器连接')
         ws.send(JSON.stringify({ type: 1, ...params }))
